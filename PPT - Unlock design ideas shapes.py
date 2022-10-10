@@ -1,4 +1,4 @@
-import logging, os, sys, zipfile
+import logging, os, sys, shutil, zipfile
 from tkinter.filedialog import askopenfilename
 from lxml import objectify, etree
 """Unlocks the shapes created by Design Ideas  in PowerPoint.
@@ -35,6 +35,7 @@ def main():
     ppt_path = choose_file(CURRENT_DIR)
     logging.basicConfig(level=LOGGING_LEVEL, format="{asctime} {message}", style="{", datefmt="%H:%M:%S")
     if ppt_path:
+        logging.info(f"Unlocking {ppt_path}")
         unzip_dir = unzip_file(ppt_path, True) #unzip .pptx
         ppt_dir = os.path.join(unzip_dir, "ppt", "slides") #got to dir containing xml of slides
         _, _, files = next(os.walk(ppt_dir))
@@ -64,6 +65,8 @@ def main():
                 with open(os.path.join(ppt_dir, file), 'wb') as xml_writer: #overwrite file with modified root
                     xml_writer.write(etree.tostring(root))
         zip_directory(unzip_dir, unzip_dir + "_mod.pptx") #Zip directory back to pptx
+        shutil.rmtree(unzip_dir) #delete directory
+        logging.info(f"Unlocked in : {unzip_dir}_mod.pptx")
 
 if __name__ == '__main__':
     main()
